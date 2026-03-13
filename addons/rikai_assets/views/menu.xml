@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+
+    <record id="action_single_check_url" model="ir.actions.act_url">
+        <field name="name">Single Check</field>
+        <field name="url">/asset/single_check</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_inventory_session" model="ir.actions.act_window">
+        <field name="name">Inventory Sessions</field>
+        <field name="res_model">rikai.inventory.session</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_inventory_user_scan_url" model="ir.actions.act_url">
+        <field name="name">Inventory Scan</field>
+        <field name="url">/asset/user_inventory_scan</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_rikai_root"
+              name="Rikai Assets"
+              sequence="10"/>
+
+    <menuitem id="menu_rikai_asset"
+              name="Assets"
+              parent="menu_rikai_root"
+              action="action_rikai_asset"
+              sequence="1"
+              groups="rikai_assets.group_rikai_asset_user"/>
+
+    <menuitem id="menu_rikai_single_check"
+              name="Single Check"
+              parent="menu_rikai_root"
+              action="action_single_check_url"
+              sequence="2"
+              groups="rikai_assets.group_rikai_asset_user"/>
+
+    <menuitem id="menu_inventory_root"
+              name="Inventory Check"
+              parent="menu_rikai_root"
+              sequence="3"
+              groups="rikai_assets.group_rikai_asset_admin"/>
+
+    <menuitem id="menu_inventory_session"
+              name="Inventory Sessions"
+              parent="menu_inventory_root"
+              action="action_inventory_session"
+              sequence="1"
+              groups="rikai_assets.group_rikai_asset_admin"/>
+
+    <menuitem id="menu_inventory_assets"
+              name="Inventory Assets"
+              parent="menu_inventory_root"
+              action="action_inventory_assets"
+              sequence="2"
+              groups="rikai_assets.group_rikai_asset_admin"/>
+
+    <menuitem id="menu_inventory_user_scan"
+              name="Inventory Scan"
+              parent="menu_inventory_root"
+              action="action_inventory_user_scan_url"
+              sequence="3"
+              groups="rikai_assets.group_rikai_asset_admin"/>
+
+</odoo>

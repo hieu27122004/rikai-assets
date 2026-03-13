@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="module_category_rikai_asset" model="ir.module.category">
+        <field name="name">Rikai Assets</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="group_rikai_asset_user" model="res.groups">
+        <field name="name">Rikai Asset User</field>
+        <field name="category_id" ref="module_category_rikai_asset"/>
+    </record>
+
+    <record id="group_rikai_asset_admin" model="res.groups">
+        <field name="name">Rikai Asset Admin</field>
+        <field name="category_id" ref="module_category_rikai_asset"/>
+        <field name="implied_ids" eval="[(4, ref('group_rikai_asset_user'))]"/>
+    </record>
+
+</odoo>

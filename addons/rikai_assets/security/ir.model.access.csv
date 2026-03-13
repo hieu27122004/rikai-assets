@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_rikai_asset_user,rikai.asset.user,model_rikai_asset,rikai_assets.group_rikai_asset_user,1,0,0,0
+access_rikai_asset_admin,rikai.asset.admin,model_rikai_asset,rikai_assets.group_rikai_asset_admin,1,1,1,1
+
+access_rikai_asset_category_user,rikai.asset.category.user,model_rikai_asset_category,rikai_assets.group_rikai_asset_user,1,0,0,0
+access_rikai_asset_category_admin,rikai.asset.category.admin,model_rikai_asset_category,rikai_assets.group_rikai_asset_admin,1,1,1,1
+
+access_rikai_asset_usage_user,rikai.asset.usage.user,model_rikai_asset_usage,rikai_assets.group_rikai_asset_user,1,0,0,0
+access_rikai_asset_usage_admin,rikai.asset.usage.admin,model_rikai_asset_usage,rikai_assets.group_rikai_asset_admin,1,1,1,1
+
+access_inventory_session_user,rikai.inventory.session.user,model_rikai_inventory_session,rikai_assets.group_rikai_asset_user,1,0,0,0
+access_inventory_session_admin,rikai.inventory.session.admin,model_rikai_inventory_session,rikai_assets.group_rikai_asset_admin,1,1,1,1

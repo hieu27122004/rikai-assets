@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="asset_public_template" name="Asset Public Info">
+        <t t-call="website.layout">
+            <div class="container mt-5">
+                <h2><t t-esc="asset.name"/></h2>
+
+                <p><strong>Asset Code:</strong> <t t-esc="asset.asset_code"/></p>
+                <p><strong>Description:</strong> <t t-esc="asset.description"/></p>
+                <p><strong>Category:</strong> <t t-esc="asset.category_id.name"/></p>
+                <p><strong>State:</strong> <t t-esc="asset.state"/></p>
+            </div>
+        </t>
+    </template>
+
+</odoo>

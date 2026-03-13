@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="single_check_template" name="Asset Single Check">
+        <t t-call="web.layout">
+
+            <div style="
+                height:100vh;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                text-align:center;
+            ">
+
+                <h2>Asset QR Scanner</h2>
+                <p>Quét QR để mở thông tin tài sản</p>
+
+                <div id="reader" style="width:min(95vw,550px);margin:20px auto;"></div>
+
+                <div id="loading" style="display:none;color:green;">
+                    Đang mở thông tin...
+                </div>
+
+                <p style="color:red;margin-top:15px;" id="error-msg"></p>
+
+
+
+            </div>
+
+            <script src="https://unpkg.com/html5-qrcode"></script>
+
+            <script>
+                let scanner;
+
+                function onScanSuccess(decodedText) {
+
+                    console.log("QR RAW:", decodedText);
+
+                    let match = decodedText.match(/asset_code=([^&amp;]+)/);
+
+                    if (match &amp;&amp; match[1]) {
+
+                        let assetCode = match[1].trim();
+
+                        scanner.clear();
+                        document.getElementById("loading").style.display = "block";
+
+                        window.location.href =
+                            "/asset/redirect_by_code?asset_code=" + assetCode;
+
+                    } else {
+
+                        document.getElementById("error-msg").innerText =
+                            "Không tìm thấy Asset Code trong QR.";
+
+                        console.log("Không parse được asset_code");
+                    }
+                }
+
+                function onScanFailure(error) {}
+
+                window.addEventListener("load", function () {
+
+                    scanner = new Html5QrcodeScanner(
+                        "reader",
+                        {
+                            fps: 20,
+                            qrbox: function(w, h) {
+                                var s = Math.min(w, h) * 0.85;
+                                return { width: s, height: s };
+                            },
+                            experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                        },
+                        false
+                    );
+
+                    scanner.render(onScanSuccess, onScanFailure);
+                });
+            </script>
+
+        </t>
+    </template>
+
+</odoo>

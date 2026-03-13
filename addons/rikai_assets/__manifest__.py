@@ -1,0 +1,27 @@
+{
+    'name': 'Rikai Assets',
+    'version': '18.0.1.0.0',
+    'summary': 'Asset Management System',
+    'author': 'Hieu',
+    'category': 'Tools',
+    'license': 'LGPL-3',
+    'depends': [
+        'base',
+        'hr',
+        'web',
+        'website',
+        'mail',
+    ],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'views/asset_view.xml',
+        'views/inventory_session_view.xml',
+        'views/inventory_session_scan_template.xml',
+        'views/menu.xml',
+        'views/single_check_template.xml',
+        'views/asset_public_template.xml',
+    ],
+    'installable': True,
+    'application': True,
+}

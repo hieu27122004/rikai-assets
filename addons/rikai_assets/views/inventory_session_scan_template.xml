@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="inventory_session_scan_template">
+        <t t-call="web.layout">
+
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+            <div style="
+                min-height:100vh;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                text-align:center;
+                font-family: sans-serif;
+                padding: 16px;
+                box-sizing: border-box;
+            ">
+                <h2 style="margin-bottom:4px;font-size:clamp(16px,5vw,24px);">Inventory Scanner</h2>
+
+                <t t-if="session">
+                    <p style="color:#555;margin-bottom:8px;font-size:clamp(13px,3.5vw,16px);">
+                        Session: <strong t-esc="session.name"/>
+                    </p>
+                </t>
+                <t t-if="not session">
+                    <p style="color:#555;margin-bottom:8px;font-size:clamp(13px,3.5vw,16px);">Quét QR để kiểm kê tài sản</p>
+                </t>
+
+                <div id="reader" style="width:min(95vw,550px);margin:8px auto;"></div>
+
+                <div id="result-msg" style="
+                    display:none;
+                    margin-top:10px;
+                    padding:12px 28px;
+                    border-radius:10px;
+                    font-size:clamp(15px,4vw,18px);
+                    font-weight:600;
+                    width:min(85vw,380px);
+                "></div>
+
+                <t t-if="session">
+                    <button style="
+                        margin-top:18px;
+                        padding:12px 32px;
+                        background:#dc3545;
+                        color:white;
+                        border:none;
+                        border-radius:8px;
+                        cursor:pointer;
+                        font-size:clamp(15px,4vw,17px);
+                        min-width:120px;
+                        touch-action:manipulation;
+                    " onclick="exitScan()">Thoát</button>
+                </t>
+
+
+            </div>
+
+            <script src="https://unpkg.com/html5-qrcode"></script>
+
+            <script>
+                let html5QrCode;
+                let scanned = false;
+
+                <t t-if="session">
+                    let sessionId = <t t-esc="session.id"/>;
+                </t>
+                <t t-if="not session">
+                    let sessionId = null;
+                </t>
+
+                var audioCtx = null;
+
+                function getAudioCtx() {
+                    if (!audioCtx) {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                    return audioCtx;
+                }
+
+                /* Unlock on very first touch/click anywhere on the page */
+                function unlockAudio() {
+                    getAudioCtx();
+                    document.removeEventListener('touchstart', unlockAudio);
+                    document.removeEventListener('mousedown', unlockAudio);
+                }
+                document.addEventListener('touchstart', unlockAudio, { once: true });
+                document.addEventListener('mousedown', unlockAudio, { once: true });
+
+                function playBeep(success) {
+                    try {
+                        var ctx = getAudioCtx();
+                        /* Convenience store scanner: high freq, short, sharp */
+                        var osc = ctx.createOscillator();
+                        var gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.type = 'square';
+                        osc.frequency.value = success ? 1800 : 600;
+                        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                        osc.start(ctx.currentTime);
+                        osc.stop(ctx.currentTime + 0.08);
+                    } catch(e) {}
+                }
+
+                function showResult(msg, success) {
+                    var el = document.getElementById('result-msg');
+                    el.innerText = msg;
+                    el.style.display = 'block';
+                    el.style.background = success ? '#d4edda' : '#f8d7da';
+                    el.style.color = success ? '#155724' : '#721c24';
+                    playBeep(success);
+                    setTimeout(function() {
+                        el.style.display = 'none';
+                        scanned = false;
+                    }, 1500);
+                }
+
+                function exitScan() {
+                    if (html5QrCode) {
+                        html5QrCode.stop().then(function() {
+                            window.location.href =
+                                '/web#id=' + sessionId +
+                                '&amp;model=rikai.inventory.session' +
+                                '&amp;view_type=form';
+                        });
+                    }
+                }
+
+                function startScanner() {
+                    html5QrCode = new Html5Qrcode('reader');
+                    /* qrbox scales with screen: min 200, max 300 */
+                    var boxSize = Math.min(480, Math.max(280, Math.round(window.innerWidth * 0.85)));
+                    html5QrCode.start(
+                        { facingMode: 'environment' },
+                        { fps: 20, qrbox: boxSize, experimentalFeatures: { useBarCodeDetectorIfSupported: true } },
+                        function(decodedText) {
+                            if (scanned) return;
+                            scanned = true;
+
+                            fetch('/asset/session_scan_process', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    jsonrpc: '2.0',
+                                    method: 'call',
+                                    params: {
+                                        session_id: sessionId,
+                                        decoded_text: decodedText
+                                    }
+                                })
+                            })
+                            .then(function(res) { return res.json(); })
+                            .then(function(response) {
+                                var result = response.result;
+                                if (result &amp;&amp; result.success) {
+                                    showResult('✔ ' + (result.asset_name || 'Đã kiểm kê'), true);
+                                } else {
+                                    showResult('✘ ' + (result &amp;&amp; result.error ? result.error : 'Lỗi'), false);
+                                }
+                            })
+                            .catch(function() {
+                                showResult('✘ Lỗi kết nối', false);
+                            });
+                        }
+                    );
+                }
+
+                window.addEventListener('load', startScanner);
+            </script>
+
+        </t>
+    </template>
+
+</odoo>

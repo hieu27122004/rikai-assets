@@ -1,0 +1,9 @@
+{
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "none",
+    "reportMissingModuleSource": "none"
+  },
+  "python.defaultInterpreterPath": "python",
+  "python-envs.defaultEnvManager": "ms-python.python:system"
+}
